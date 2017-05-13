@@ -1,0 +1,204 @@
+
+<style type="text/css">
+	td  
+	{  
+	    text-align:center;  
+	} 
+</style>
+
+{% block styles %}
+    <link rel="stylesheet" href="{{url_for('.static', filename='mystyle.css')}}">
+<!-- Optional theme -->
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="{{url_for('.static', filename='myscripts.js')}}"></script>
+{% endblock %}
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+        <h2>Github Readme analysis</h2>
+    </div>
+  </div>
+</nav>
+
+
+
+	<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <input type="number" name="num" id="num" placeholder="Numbers of Readme File to Fetch" class="form-control"/>
+            </div>
+            <div class="col-sm-4">
+                <button type="button" id="get" class="btn btn-primary" >Submit</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+
+  		<br><br>
+
+	    <table border="1" id="maincontents" class="table">
+	    	<tr>
+	    		<td>NO.</td>
+		      	<td>ID</td>
+		      	<td>Project Name</td>
+		      	<td>URL</td>
+		      	<td>Picture</td>
+		      	<td>Heading</td>
+		      
+	      	</tr>
+	    
+		{% for i in pros %}
+			{% if i.id %}
+				<tr>
+					<td>{{ i.no }}</td>	
+					<td>{{ i.id }}</td>
+					<td><a target="_blank" href="https://github.com/{{ i.name }}">{{ i.name }}</a></td>
+					<td onclick="showURL({{ i.id }})">{{ i.urlNum }}</td>
+					<td>{{ i.pic }}</td>
+					<td>{{ i.heading }}</td>
+				
+					
+				</tr>
+			{% endif %}	
+		{% endfor %}
+		</table>
+	
+		
+		<br>
+		<table>
+			<tr>
+				<td>Description</td>
+				<td>Number</td>
+			</tr>
+		{% for i in pros %}
+			{% if i.id %}
+			{% else %}
+				
+				{% for j in i %}
+					{% autoescape off %}
+					<tr>
+						{{j}}
+					</tr>
+					{% endautoescape %}
+					<!-- <div id="heading">{{j}}</div> -->
+			
+				{% endfor %}	
+				
+			{% endif %}	
+		{% endfor %}
+		</table>
+		<br />
+		
+		{% for i in pros %}
+			{% if i.id %}
+				{% if i.urlNum!=None %}
+					{% if i.urlNum!=0 %}
+						<div id="{{ i.id }}" style="display: none">
+							<div>id:&nbsp;{{ i.id }}</div>
+							{% for j in i.urlcontents %}
+								<div><a href="{{ j }}">{{ j }}</a></div>
+								
+							{% endfor %}	
+							<br />
+						</div>	
+					{% endif %}
+				{% endif %}
+			{% endif %}
+		{% endfor %}
+		<div id="urlcontainer"></div>
+    </div>
+    <!-- <div id="test">test</div>
+    <div id="text">text</div> -->
+	</body>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="{{
+  url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
+<script type="text/javascript">
+	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	$(function() {
+	    $('button#get').bind('click', function() {
+	    	totalnum = document.getElementById('num').value;
+	    	var count=0;
+	    	for(var i=0;i<totalnum;i++){
+
+		      	$.getJSON($SCRIPT_ROOT + '/_add_numbers', {
+		        	a: '3'
+		      	}, function(data) {
+		        	var contents = data.result;
+		        	count = count + 1;
+		        	var no = count;
+		        	var id = contents[0].id;
+		        	var heading = contents[0].heading;
+		        	var name = contents[0].name;
+		        	var urlNum = contents[0].urlNum;
+		        	var pic = contents[0].pic;
+
+		        	if(urlNum==null) urlNum = 'None';
+		        	if(pic==null) pic = 'None';
+		        	if(heading==null) heading = 'None';
+		        	// var text = contents[0].text;
+		        	// document.getElementById('text').innerHTML = text;
+		        	// var originalcontents = document.getElementById('maincontents').innerHTML;
+		        	var tbdy = document.getElementById('maincontents');
+		        	var tr = document.createElement('tr');
+
+		        	var tdNo = document.createElement('td');
+		        	var tdid = document.createElement('td');
+		        	var tdname = document.createElement('td');
+		        	tdname.setAttribute("id", name);
+		        	var tdurlNum = document.createElement('td');
+		        	var tdpic = document.createElement('td');
+		        	var tdheading = document.createElement('td');
+
+		        	tdNo.appendChild(document.createTextNode(no));
+		        	tdid.appendChild(document.createTextNode(id));
+		        	// tdname.appendChild(document.createTextNode(name));
+		        	tdurlNum.appendChild(document.createTextNode(urlNum));
+		        	tdpic.appendChild(document.createTextNode(pic));
+		        	tdheading.appendChild(document.createTextNode(heading));
+		        	
+		        	tr.appendChild(tdNo);
+		        	tr.appendChild(tdid);
+		        	tr.appendChild(tdname);
+		        	tr.appendChild(tdurlNum);
+		        	tr.appendChild(tdpic);
+		        	tr.appendChild(tdheading);
+
+		        	tbdy.appendChild(tr);
+
+		        	document.getElementById(name).innerHTML = "<a href=\"https://github.com/"+name+"\">"+name+"</a>";
+		        	
+		      	});
+		      	
+		    }
+		    return false;
+	    });
+  	});
+
+	function showURL(id){
+		var contents = document.getElementById(id).innerHTML;
+		document.getElementById('urlcontainer').innerHTML = contents;
+	}
+
+	
+</script>
+
+
+<style>
+    h2{
+        color: green;
+    }
+</style>
